@@ -98,7 +98,7 @@
 <body>
     <div class="container">
         <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-4">Guardar Datos</h1>
-        <p class="text-center text-gray-600 mb-6">Completa el formulario de gastos para enviar datos a tu Google Sheet.</p>
+        <p class="text-center text-gray-600 mb-6">Completa el formulario de GATO para enviar datos a tu Google Sheet.</p>
 
         <form id="dataForm" class="space-y-4">
             <div class="form-group">
@@ -150,7 +150,7 @@
             }
 
             try {
-                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec', {
                     method: 'POST',
                     mode: 'no-cors', // Importante para evitar problemas de CORS con Apps Script
                     cache: 'no-cache',
