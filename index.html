@@ -130,15 +130,6 @@
         dataForm.addEventListener('submit', async (event) => {
             event.preventDefault(); // Evita que el formulario se envíe de la forma tradicional
 
-            // Verifica si la URL del Apps Script es el placeholder
-            if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec') {
-                messageBox.classList.remove('hidden', 'success', 'loading');
-                messageBox.classList.add('error');
-                messageBox.textContent = 'Error: Por favor, reemplazaXX "https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec" en el código con la URL real de tu Google Apps Script desplegado.';
-                alert("Nelson");
-                return; // Detiene la ejecución si la URL no ha sido actualizada
-            }
-
             // Muestra mensaje de carga
             messageBox.classList.remove('hidden', 'success', 'error');
             messageBox.classList.add('loading');
@@ -151,7 +142,7 @@
             }
 
             try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec', {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors', // Importante para evitar problemas de CORS con Apps Script
                     cache: 'no-cache',
