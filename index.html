@@ -122,7 +122,7 @@
         // *** IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script desplegado ***
         // Sigue las instrucciones en la sección de "Configuración de Google Apps Script" para obtener esta URL.
         // Ejemplo de URL: 'https://script.google.com/macros/s/AKfycBx_YOUR_SCRIPT_ID_HERE/exec'
-        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'TU_URL_DE_APPS_SCRIPT_AQUI';
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec';
 
         const dataForm = document.getElementById('dataForm');
         const messageBox = document.getElementById('message');
@@ -131,10 +131,10 @@
             event.preventDefault(); // Evita que el formulario se envíe de la forma tradicional
 
             // Verifica si la URL del Apps Script es el placeholder
-            if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'TU_URL_DE_APPS_SCRIPT_AQUI') {
+            if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec') {
                 messageBox.classList.remove('hidden', 'success', 'loading');
                 messageBox.classList.add('error');
-                messageBox.textContent = 'Error: Por favor, reemplaza "TU_URL_DE_APPS_SCRIPT_AQUI" en el código con la URL real de tu Google Apps Script desplegado.';
+                messageBox.textContent = 'Error: Por favor, reemplaza "https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec" en el código con la URL real de tu Google Apps Script desplegado.';
                 return; // Detiene la ejecución si la URL no ha sido actualizada
             }
 
