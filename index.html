@@ -98,7 +98,7 @@
 <body>
     <div class="container">
         <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-4">Guardar Datos</h1>
-        <p class="text-center text-gray-600 mb-6">Completa el formulario de GATO para enviar datos a tu Google Sheet.</p>
+        <p class="text-center text-gray-600 mb-6">Completa el formulario de GATOs para enviar datos a tu Google Sheet.</p>
 
         <form id="dataForm" class="space-y-4">
             <div class="form-group">
@@ -134,7 +134,8 @@
             if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec') {
                 messageBox.classList.remove('hidden', 'success', 'loading');
                 messageBox.classList.add('error');
-                messageBox.textContent = 'Error: Por favor, reemplaza "https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec" en el código con la URL real de tu Google Apps Script desplegado.';
+                messageBox.textContent = 'Error: Por favor, reemplazaXX "https://script.google.com/macros/s/AKfycbzs93T0JDgHxsqp4Z5OdxOyTqxE8UpP8odW7xJNbf1Rz13cj_W4FfVzckuoaPv_3sRF/exec" en el código con la URL real de tu Google Apps Script desplegado.';
+                alert("Nelson");
                 return; // Detiene la ejecución si la URL no ha sido actualizada
             }
 
