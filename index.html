@@ -141,6 +141,8 @@
                 data[key] = value;
             }
 
+            alert(data);
+
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                     method: 'POST',
