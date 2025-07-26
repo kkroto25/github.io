@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardar Datos en Google Sheet</title>
+    <!-- Carga de Tailwind CSS para estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Fuente Inter */
+            background-color: #f0f4f8; /* Fondo suave */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff; /* Fondo del contenedor */
+            border-radius: 1.5rem; /* Bordes redondeados */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px; /* Ancho máximo para simular móvil */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1; /* Borde gris claro */
+            border-radius: 0.75rem; /* Bordes redondeados */
+            font-size: 1rem;
+            color: #334155;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6; /* Borde azul al enfocar */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Sombra de enfoque */
+        }
+        .btn-submit {
+            background-color: #2563eb; /* Azul fuerte */
+            color: white;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            border: none;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+        .btn-submit:hover {
+            background-color: #1d4ed8; /* Azul más oscuro al pasar el ratón */
+            transform: translateY(-2px); /* Efecto de elevación */
+        }
+        .btn-submit:active {
+            transform: translateY(0); /* Efecto de clic */
+        }
+        .message-box {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .message-box.success {
+            background-color: #d1fae5; /* Verde claro */
+            color: #065f46; /* Verde oscuro */
+            border: 1px solid #34d399;
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* Rojo claro */
+            color: #991b1b; /* Rojo oscuro */
+            border: 1px solid #ef4444;
+        }
+        .message-box.loading {
+            background-color: #e0f2fe; /* Azul muy claro */
+            color: #1e40af; /* Azul oscuro */
+            border: 1px solid #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-4">Guardar Datos</h1>
+        <p class="text-center text-gray-600 mb-6">Completa el formulario para enviar datos a tu Google Sheet.</p>
+
+        <form id="dataForm" class="space-y-4">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required class="rounded-xl">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required class="rounded-xl">
+            </div>
+            <div class="form-group">
+                <label for="mensaje">Mensaje:</label>
+                <textarea id="mensaje" name="mensaje" rows="4" required class="rounded-xl"></textarea>
+            </div>
+            <button type="submit" class="btn-submit w-full rounded-xl">Guardar Datos</button>
+        </form>
+        <div id="message" class="message-box hidden"></div>
+    </div>
+
+    <script>
+        // *** IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script desplegado ***
+        // Sigue las instrucciones en la sección de "Configuración de Google Apps Script" para obtener esta URL.
+        // Ejemplo de URL: 'https://script.google.com/macros/s/AKfycBx_YOUR_SCRIPT_ID_HERE/exec'
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'TU_URL_DE_APPS_SCRIPT_AQUI';
+
+        const dataForm = document.getElementById('dataForm');
+        const messageBox = document.getElementById('message');
+
+        dataForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Evita que el formulario se envíe de la forma tradicional
+
+            // Verifica si la URL del Apps Script es el placeholder
+            if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'TU_URL_DE_APPS_SCRIPT_AQUI') {
+                messageBox.classList.remove('hidden', 'success', 'loading');
+                messageBox.classList.add('error');
+                messageBox.textContent = 'Error: Por favor, reemplaza "TU_URL_DE_APPS_SCRIPT_AQUI" en el código con la URL real de tu Google Apps Script desplegado.';
+                return; // Detiene la ejecución si la URL no ha sido actualizada
+            }
+
+            // Muestra mensaje de carga
+            messageBox.classList.remove('hidden', 'success', 'error');
+            messageBox.classList.add('loading');
+            messageBox.textContent = 'Enviando datos...';
+
+            const formData = new FormData(dataForm);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            try {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Importante para evitar problemas de CORS con Apps Script
+                    cache: 'no-cache',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                // Debido a 'no-cors', la respuesta no puede ser leída directamente.
+                // Asumimos éxito si no hay error de red.
+                // En un entorno de producción, configurar CORS en Apps Script sería ideal
+                // para poder leer la respuesta real del script.
+
+                messageBox.classList.remove('loading');
+                messageBox.classList.add('success');
+                messageBox.textContent = '¡Datos guardados con éxito!';
+                dataForm.reset(); // Limpia el formulario
+            } catch (error) {
+                console.error('Error al enviar los datos:', error);
+                messageBox.classList.remove('loading', 'success');
+                messageBox.classList.add('error');
+                messageBox.textContent = 'Error al guardar los datos. Inténtalo de nuevo.';
+            }
+        });
+    </script>
+</body>
+</html>
