@@ -237,8 +237,10 @@
                     mode: 'cors', // Usamos 'cors' porque el Apps Script está configurado para enviar 'Access-Control-Allow-Origin'
                     cache: 'no-cache'
                 });
+                console.log("paso01"); 
 
                 if (response.ok) {
+                    console.log("paso02"); 
                     const result = await response.json();
                     if (result.result === 'success') {
                         displayData(result.data); // Llama a la función para mostrar los datos
@@ -249,11 +251,13 @@
                         throw new Error(result.message || 'Error desconocido al cargar datos.');
                     }
                 } else {
+                    console.log("paso03"); 
                     const errorText = await response.text();
                     throw new Error(`Error HTTP ${response.status}: ${errorText}`);
                 }
 
             } catch (error) {
+                console.log("paso04"); 
                 console.error('Error al cargar los datos:', error);
                 loadMessageBox.classList.remove('loading', 'success');
                 loadMessageBox.classList.add('error');
