@@ -134,7 +134,7 @@
 <body>
     <div class="container">
         <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-4">Guardar Datos</h1>
-        <p class="text-center text-gray-600 mb-6">Completa el formulario de gastoS para enviar datos a tu Google Sheet.</p>
+        <p class="text-center text-gray-600 mb-6">Completa el formulario de gastoSX1 para enviar datos a tu Google Sheet.</p>
 
         <form id="dataForm" class="space-y-4">
             <div class="form-group">
@@ -168,7 +168,7 @@
         // *** IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script desplegado ***
         // Sigue las instrucciones en la sección de "Configuración de Google Apps Script" para obtener esta URL.
         // Ejemplo de URL: 'https://script.google.com/macros/s/AKfycBx_YOUR_SCRIPT_ID_HERE/exec'
-        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz_edYIqkZrZcciT6e-3gVzP-3Gpp5L_fO0aT5C3vqAKr4VkZhhNS2c8gk5wncoO31N/exec';
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx24S3Y5Rvk3QVaK1KlV7w4MsYPNfqw0AmRET4PYi0YRweoj7cSR_eRFrBOri6CijuG/exec';
 
         const dataForm = document.getElementById('dataForm');
         const messageBox = document.getElementById('message');
@@ -229,21 +229,19 @@
             loadMessageBox.classList.remove('hidden', 'success', 'error');
             loadMessageBox.classList.add('loading');
             loadMessageBox.textContent = 'Cargando datos...';
-            initialLoadMessage.classList.add('hidden'); // Oculta el mensaje inicial
-
+            initialLoadMessage.classList.add('hidden');
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                     method: 'GET',
-                    mode: 'cors', // Usamos 'cors' porque el Apps Script está configurado para enviar 'Access-Control-Allow-Origin'
+                    mode: 'cors',
                     cache: 'no-cache'
                 });
-                console.log("paso01"); 
-
+                console.log("paso01");
                 if (response.ok) {
-                    console.log("paso02"); 
                     const result = await response.json();
+                    console.log("paso02");
                     if (result.result === 'success') {
-                        displayData(result.data); // Llama a la función para mostrar los datos
+                        displayData(result.data);
                         loadMessageBox.classList.remove('loading', 'error');
                         loadMessageBox.classList.add('success');
                         loadMessageBox.textContent = `Datos cargados con éxito. Total de filas: ${result.data.length}`;
@@ -251,13 +249,12 @@
                         throw new Error(result.message || 'Error desconocido al cargar datos.');
                     }
                 } else {
-                    console.log("paso03"); 
+                    console.log("paso03");
                     const errorText = await response.text();
                     throw new Error(`Error HTTP ${response.status}: ${errorText}`);
                 }
-
             } catch (error) {
-                console.log("paso04"); 
+                console.log("paso04");
                 console.error('Error al cargar los datos:', error);
                 loadMessageBox.classList.remove('loading', 'success');
                 loadMessageBox.classList.add('error');
@@ -266,20 +263,15 @@
             }
         }
 
-        // Función para renderizar los datos en una tabla HTML
         function displayData(data) {
-            dataDisplayArea.innerHTML = ''; // Limpia el área de visualización
-
+            dataDisplayArea.innerHTML = '';
             if (data.length === 0) {
                 dataDisplayArea.innerHTML = '<p class="no-data-message">No hay datos para mostrar.</p>';
                 return;
             }
-
             const table = document.createElement('table');
             const thead = document.createElement('thead');
             const tbody = document.createElement('tbody');
-
-            // Crear encabezados de tabla (basado en las claves del primer objeto de datos)
             const headers = Object.keys(data[0]);
             const headerRow = document.createElement('tr');
             headers.forEach(headerText => {
@@ -289,22 +281,14 @@
             });
             thead.appendChild(headerRow);
             table.appendChild(thead);
-
-            // Crear filas de datos
             data.forEach(rowData => {
                 const tr = document.createElement('tr');
                 headers.forEach(headerText => {
                     const td = document.createElement('td');
                     let cellContent = rowData[headerText];
-
-                    // Formatear la fecha si es una instancia de Date (asumiendo que 'Timestamp' es una fecha)
-                    if (headerText === 'Timestamp' && cellContent instanceof Date) {
-                        td.textContent = cellContent.toLocaleString(); // Formato legible de fecha y hora
-                    } else if (cellContent !== null && typeof cellContent === 'object' && cellContent.constructor.name === 'Date') {
-                        // Manejar fechas que vienen como objetos Date de Apps Script
+                    if (cellContent !== null && typeof cellContent === 'object' && cellContent.constructor.name === 'Date') {
                         td.textContent = new Date(cellContent).toLocaleString();
-                    }
-                    else {
+                    } else {
                         td.textContent = cellContent;
                     }
                     tr.appendChild(td);
