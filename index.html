@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guardar y Mostrar Datos en Google Sheet</title>
-    <!-- Carga de Tailwind CSS para estilos -->
+    <title>Prueba de Conexión CORS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -12,12 +11,9 @@
             background-color: #f0f4f8;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 2rem 1rem;
-            box-sizing: border-box;
         }
         .container {
             background-color: #ffffff;
@@ -25,34 +21,11 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             width: 100%;
-            max-width: 700px;
-            box-sizing: border-box;
-            margin-bottom: 2rem;
+            max-width: 500px;
+            text-align: center;
         }
-        .form-group label {
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            color: #334155;
-            transition: border-color 0.2s;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-        }
-        .btn-submit, .btn-load {
-            background-color: #2563eb;
+        .btn-test {
+            background-color: #3b82f6;
             color: white;
             padding: 0.85rem 1.5rem;
             border-radius: 0.75rem;
@@ -61,22 +34,13 @@
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
             border: none;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+            width: 100%;
+            margin-top: 1rem;
         }
-        .btn-load {
-            background-color: #10b981;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-        }
-        .btn-submit:hover {
-            background-color: #1d4ed8;
+        .btn-test:hover {
+            background-color: #2563eb;
             transform: translateY(-2px);
-        }
-        .btn-load:hover {
-            background-color: #059669;
-            transform: translateY(-2px);
-        }
-        .btn-submit:active, .btn-load:active {
-            transform: translateY(0);
         }
         .message-box {
             padding: 1rem;
@@ -100,108 +64,32 @@
             color: #1e40af;
             border: 1px solid #60a5fa;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.5rem;
-            background-color: #f8fafc;
-            border-radius: 0.75rem;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        th {
-            background-color: #e2e8f0;
-            font-weight: 700;
-            color: #475569;
-            text-transform: uppercase;
-            font-size: 0.875rem;
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        .no-data-message {
-            text-align: center;
-            padding: 1.5rem;
-            color: #64748b;
-            font-style: italic;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-4">Guardar Datos</h1>
-        <p class="text-center text-gray-600 mb-6">Completa el formulario para enviar datosNH a tu Google Sheet.</p>
-        <form id="dataForm" class="space-y-4">
-            <div class="form-group">
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" required class="rounded-xl">
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required class="rounded-xl">
-            </div>
-            <div class="form-group">
-                <label for="mensaje">Mensaje:</label>
-                <textarea id="mensaje" name="mensaje" rows="4" required class="rounded-xl"></textarea>
-            </div>
-            <button type="submit" class="btn-submit w-full rounded-xl">Guardar Datos</button>
-        </form>
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4">Prueba de Conexión Apps Script</h1>
+        <p class="text-gray-600">Haz clic en el botón para verificar que la URL funciona.</p>
+        <button id="testBtn" class="btn-test">Probar Conexión</button>
         <div id="message" class="message-box hidden"></div>
     </div>
-    <div class="container">
-        <h2 class="text-2xl font-extrabold text-center text-gray-800 mb-4">Datos Guardados</h2>
-        <p class="text-center text-gray-600 mb-6">Haz clic para cargar los datos desde tu Google Sheet.</p>
-        <button id="loadDataBtn" class="btn-load w-full rounded-xl mb-4">Cargar Datos</button>
-        <div id="dataDisplayArea">
-            <p class="no-data-message" id="initialLoadMessage">Haz clic en "Cargar Datos" para ver la información.</p>
-        </div>
-        <div id="loadMessage" class="message-box hidden"></div>
-    </div>
     <script>
-        // *** IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script desplegado ***
-        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzta6l5k38cKuSRI8SCra2Ms1mvPSJ2mXLsupHrmDAu77IdkcjR-qoYRZVm2mzEL7jw/exec'; // ¡Reemplaza con tu URL real!
+        // *** IMPORTANTE: Reemplaza esta URL con la NUEVA URL de tu despliegue ***
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx2VZPXRe5PGxyV2WOYQXEYOoQ5lB-ZS7ZXa6b5mzjshW9XUkctnLt6ZtCxmah8_6xNTA/exec'; // ¡Reemplaza con tu URL real!
 
-        const dataForm = document.getElementById('dataForm');
+        const testBtn = document.getElementById('testBtn');
         const messageBox = document.getElementById('message');
-        const loadDataBtn = document.getElementById('loadDataBtn');
-        const dataDisplayArea = document.getElementById('dataDisplayArea');
-        const loadMessageBox = document.getElementById('loadMessage');
-        const initialLoadMessage = document.getElementById('initialLoadMessage');
 
-        dataForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+        testBtn.addEventListener('click', async () => {
             messageBox.classList.remove('hidden', 'success', 'error');
             messageBox.classList.add('loading');
-            messageBox.textContent = 'Enviando datos...';
-            
-            const formData = new FormData(dataForm);
-            formData.append('action', 'save'); // Añade la acción 'save' como un campo de FormData
-            
-            fetchData(formData, messageBox, '¡Datos guardados con éxito!');
-        });
-
-        loadDataBtn.addEventListener('click', () => {
-            const formData = new FormData();
-            formData.append('action', 'read'); // Añade la acción 'read' como un campo de FormData
-            fetchData(formData, loadMessageBox, 'Datos cargados con éxito.');
-        });
-        
-        async function fetchData(formData, messageElement, successMessage) {
-            messageElement.classList.remove('hidden', 'success', 'error');
-            messageElement.classList.add('loading');
-            messageElement.textContent = formData.get('action') === 'read' ? 'Cargando datos...' : 'Enviando datos...';
-            if (formData.get('action') === 'read') initialLoadMessage.classList.add('hidden');
+            messageBox.textContent = 'Probando conexión...';
 
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
-                    method: 'POST',
+                    method: 'GET',
                     mode: 'cors',
-                    cache: 'no-cache',
-                    body: formData // Envía el objeto FormData directamente
+                    cache: 'no-cache'
                 });
 
                 if (!response.ok) {
@@ -209,62 +97,16 @@
                 }
 
                 const result = await response.json();
-                if (result.result === 'success') {
-                    if (formData.get('action') === 'read') {
-                        displayData(result.data);
-                    }
-                    messageElement.classList.remove('loading', 'error');
-                    messageElement.classList.add('success');
-                    messageElement.textContent = successMessage;
-                } else {
-                    throw new Error(result.message || 'Error desconocido.');
-                }
+                messageBox.classList.remove('loading', 'error');
+                messageBox.classList.add('success');
+                messageBox.textContent = result.message;
             } catch (error) {
-                console.error('Error en la petición:', error);
-                messageElement.classList.remove('loading', 'success');
-                messageElement.classList.add('error');
-                messageElement.textContent = `Error: ${error.message || error}.`;
-                if (formData.get('action') === 'read') {
-                    dataDisplayArea.innerHTML = `<p class="no-data-message">No se pudieron cargar los datos. ${error.message || error}</p>`;
-                }
+                console.error('Error de conexión:', error);
+                messageBox.classList.remove('loading', 'success');
+                messageBox.classList.add('error');
+                messageBox.textContent = `Error de conexión: ${error.message || error}.`;
             }
-        }
-        
-        function displayData(data) {
-            dataDisplayArea.innerHTML = '';
-            if (data.length === 0) {
-                dataDisplayArea.innerHTML = '<p class="no-data-message">No hay datos para mostrar.</p>';
-                return;
-            }
-            const table = document.createElement('table');
-            const thead = document.createElement('thead');
-            const tbody = document.createElement('tbody');
-            const headers = Object.keys(data[0]);
-            const headerRow = document.createElement('tr');
-            headers.forEach(headerText => {
-                const th = document.createElement('th');
-                th.textContent = headerText;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
-            data.forEach(rowData => {
-                const tr = document.createElement('tr');
-                headers.forEach(headerText => {
-                    const td = document.createElement('td');
-                    let cellContent = rowData[headerText];
-                    if (cellContent !== null && typeof cellContent === 'object' && cellContent.constructor.name === 'Date') {
-                        td.textContent = new Date(cellContent).toLocaleString();
-                    } else {
-                        td.textContent = cellContent;
-                    }
-                    tr.appendChild(td);
-                });
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            dataDisplayArea.appendChild(table);
-        }
+        });
     </script>
 </body>
 </html>
