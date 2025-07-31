@@ -92,6 +92,8 @@
                     cache: 'no-cache'
                 });
 
+                console.log('Respuesta completa del servidor:', response); 
+
                 if (!response.ok) {
                     throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
                 }
