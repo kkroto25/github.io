@@ -184,7 +184,7 @@
     <div id="addRecordModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2 class="text-xl font-bold mb-4">Agregar Nuevo Registro</h2>
+            <h2 class="text-xl font-bold mb-4">Gastos Diarios</h2>
             <form id="addRecordForm">
                 </form>
             <div id="addStatusMessage" class="message-box hidden mt-4"></div>
@@ -241,7 +241,17 @@
                     const tr = document.createElement('tr');
                     headers.forEach(header => {
                         const td = document.createElement('td');
-                        td.textContent = item[header];
+
+                        
+                        // *** CAMBIO AQUÍ: Verifica y formatea la fecha en la tabla ***
+                        let cellValue = item[header];
+                        if (header.toLowerCase().includes('fecha') && cellValue) {
+                             const date = new Date(cellValue);
+                             // Formatea la fecha a un string local, ej. 25/08/2025
+                             cellValue = date.toLocaleDateString();
+                        }
+                        
+                        td.textContent = cellValue;
                         tr.appendChild(td);
                     });
                     
@@ -351,21 +361,13 @@
                 
                 const input = document.createElement('input');               
                 input.name = header;
+                input.value = '';
 
-                // *** CAMBIO AQUÍ: Verifica si el encabezado es una fecha ***
-                if (key.toLowerCase().includes('fecha')) {
+                // *** CAMBIO CORRECTO AQUÍ: Solo establecemos el tipo de input, el valor se mantiene vacío. ***
+                if (header.toLowerCase().includes('fecha')) {
                     input.type = 'date';
-                    
-                    // Si el valor no está vacío, lo formatea
-                    if (data[key]) {
-                        const date = new Date(data[key]);
-                        // Convierte la fecha a un formato YYYY-MM-DD
-                        const formattedDate = date.toISOString().split('T')[0];
-                        input.value = formattedDate;
-                    }
                 } else {
                     input.type = 'text';
-                    input.value = data[key];
                 }
                 
                 formGroup.appendChild(label);
