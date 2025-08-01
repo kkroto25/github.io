@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Registro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f7fafc; }
+        .container { max-width: 90%; margin: 2rem auto; padding: 1.5rem; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .btn-submit { display: block; width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 600; color: #ffffff; background-color: #38a169; transition: all 0.2s ease-in-out; cursor: pointer; }
+        .btn-submit:hover { background-color: #2f855a; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { font-weight: 600; color: #4a5568; }
+        .form-group input { width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 0.25rem; }
+        .message-box { padding: 1rem; border-radius: 8px; font-weight: 600; margin-top: 1rem; text-align: center; }
+        .message-box.hidden { display: none; }
+        .message-box.loading { color: #4a5568; background-color: #e2e8f0; }
+        .message-box.success { color: #276749; background-color: #f0fff4; }
+        .message-box.error { color: #c53030; background-color: #fff5f5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Editar Registro</h1>
+        
+        <div id="statusMessage" class="message-box hidden"></div>
+        
+        <form id="editForm" class="mt-4">
+            </form>
+        
+        <button id="updateBtn" class="btn-submit mt-4"><i class="fas fa-save mr-2"></i> Actualizar Datos</button>
+    </div>
+
+    <script>
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxcMJEfa_TlY7CDaOicKIJFP-wUd2tynWU0upy0-3DlTCmvKbLwYy2YS8iiKHry7eHo/exec'; // ¡Actualiza con tu URL!
+
+        const statusMessage = document.getElementById('statusMessage');
+        const editForm = document.getElementById('editForm');
+        const updateBtn = document.getElementById('updateBtn');
+
+        // Función para obtener el parámetro de la URL
+        const getUrlParameter = (name) => {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        };
+
+        const fila = getUrlParameter('fila');
+        
+        // Función para cargar los datos del registro a editar
+        async function loadData() {
+            if (!fila) {
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('error');
+                statusMessage.textContent = 'Error: No se encontró el número de fila.';
+                return;
+            }
+
+            statusMessage.classList.remove('hidden', 'success', 'error');
+            statusMessage.classList.add('loading');
+            statusMessage.textContent = `Cargando datos del registro #${fila}...`;
+
+            try {
+                const response = await fetch(`${GOOGLE_APPS_SCRIPT_WEB_APP_URL}?fila=${fila}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderForm(result.data);
+                    statusMessage.classList.add('hidden');
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                statusMessage.classList.remove('loading');
+                statusMessage.classList.add('error');
+                statusMessage.textContent = `Error al cargar datos: ${error.message}`;
+            }
+        }
+
+        // Función para crear el formulario dinámicamente
+        function renderForm(data) {
+            editForm.innerHTML = '';
+            for (const key in data) {
+                if (key !== 'fila') { // No mostrar el campo de fila en el formulario
+                    const formGroup = document.createElement('div');
+                    formGroup.className = 'form-group';
+                    
+                    const label = document.createElement('label');
+                    label.textContent = key;
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.name = key;
+                    input.value = data[key];
+
+                    formGroup.appendChild(label);
+                    formGroup.appendChild(input);
+                    editForm.appendChild(formGroup);
+                }
+            }
+        }
+        
+        // Manejar el clic en el botón de actualización
+        updateBtn.addEventListener('click', async () => {
+            statusMessage.classList.remove('hidden', 'success', 'error');
+            statusMessage.classList.add('loading');
+            statusMessage.textContent = 'Actualizando datos...';
+
+            const formData = {};
+            formData.fila = fila;
+            editForm.querySelectorAll('input').forEach(input => {
+                formData[input.name] = input.value;
+            });
+
+            try {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusMessage.classList.remove('loading', 'error');
+                    statusMessage.classList.add('success');
+                    statusMessage.textContent = result.message;
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error al actualizar:', error);
+                statusMessage.classList.remove('loading', 'success');
+                statusMessage.classList.add('error');
+                statusMessage.textContent = `Error al actualizar: ${error.message}`;
+            }
+        });
+        
+        // Cargar los datos al iniciar la página
+        loadData();
+    </script>
+</body>
+</html>
