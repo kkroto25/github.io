@@ -109,20 +109,21 @@
             statusMessage.classList.remove('hidden', 'success', 'error');
             statusMessage.classList.add('loading');
             statusMessage.textContent = 'Actualizando datos...';
-
+        
             const formData = {};
             formData.fila = fila;
             editForm.querySelectorAll('input').forEach(input => {
                 formData[input.name] = input.value;
             });
-
+        
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    // *** CAMBIO AQUÍ: Ya no se envía Content-Type para evitar el "preflight" ***
                     body: JSON.stringify(formData)
                 });
+                
                 const result = await response.json();
                 
                 if (result.success) {
