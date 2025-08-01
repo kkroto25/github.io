@@ -105,10 +105,10 @@
                         
                         // Si el valor no está vacío, lo formatea
                         if (data[key]) {
-                            const date = new Date(data[key]);
-                            // Convierte la fecha a un formato YYYY-MM-DD
-                            const formattedDate = date.toISOString().split('T')[0];
-                            input.value = formattedDate;
+                            const [day, monthStr, year] = data[key].split('-');
+                            const month = monthNames.indexOf(monthStr) + 1;
+                            const formattedMonth = month.toString().padStart(2, '0');
+                            input.value = `${year}-${formattedMonth}-${day}`;
                         }
                     } 
                     else if (key.toLowerCase().includes('monto')) {
@@ -137,6 +137,17 @@
             const formData = {};
             formData.fila = fila;
             editForm.querySelectorAll('input').forEach(input => {
+                let value = input.value;
+                
+                // Verifica si el input es para la columna de fecha
+                if (input.name.toLowerCase().includes('fecha') && value) {
+                    const date = new Date(value); // El valor viene como yyyy-MM-dd del calendario
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const month = monthNames[date.getMonth()];
+                    const year = date.getFullYear();
+                    value = `${day}-${month}-${year}`; // Convertimos a dd-mon-yyyy
+                }
+                
                 formData[input.name] = input.value;
             });
         
