@@ -106,9 +106,13 @@
                         // Si el valor no está vacío, lo formatea
                         if (data[key]) {
                             const [day, monthStr, year] = data[key].split('-');
-                            const month = monthNames.indexOf(monthStr) + 1;
-                            const formattedMonth = month.toString().padStart(2, '0');
-                            input.value = `${year}-${formattedMonth}-${day}`;
+                            const monthIndex = monthNames.indexOf(monthStr);
+                    
+                            if (monthIndex > -1) {
+                                const formattedMonth = (monthIndex + 1).toString().padStart(2, '0');
+                                const formattedDay = day.toString().padStart(2, '0');
+                                input.value = `${year}-${formattedMonth}-${formattedDay}`;
+                            }
                         }
                     } 
                     else if (key.toLowerCase().includes('monto')) {
