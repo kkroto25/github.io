@@ -229,14 +229,18 @@
                 const headers = Object.keys(recordsToDisplay[0]).filter(key => key !== 'fila');
                 
                 const headerRow = document.createElement('tr');
+
+                const actionTh = document.createElement('th');
+                actionTh.textContent = 'Acciones';
+                headerRow.appendChild(actionTh);
+
+                
                 headers.forEach(headerText => {
                     const th = document.createElement('th');
                     th.textContent = headerText;
                     headerRow.appendChild(th);
                 });
-                const actionTh = document.createElement('th');
-                actionTh.textContent = 'Acciones';
-                headerRow.appendChild(actionTh);
+
                 tableHead.appendChild(headerRow);
 
                 const actionTd = document.createElement('td');
