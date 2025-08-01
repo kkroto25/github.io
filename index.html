@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datos en Tabla</title>
+    <title>Datos de Google Sheets</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -17,22 +17,8 @@
             padding: 1.5rem;
             background-color: #ffffff;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            overflow-x: auto; /* Permite scroll horizontal en móviles */
-        }
-        .btn-test {
-            display: inline-block;
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-weight: 600;
-            color: #ffffff;
-            background-color: #4a5568;
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-        }
-        .btn-test:hover {
-            background-color: #2d3748;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1-rgba(0, 0, 0, 0.06);
+            overflow-x: auto;
         }
         .message-box {
             padding: 1rem;
@@ -63,7 +49,7 @@
         .data-table th, .data-table td {
             padding: 0.75rem 0.5rem;
             border: 1px solid #e2e8f0;
-            white-space: nowrap; /* Evita que el texto se rompa */
+            white-space: nowrap;
         }
         .data-table th {
             background-color: #4299e1;
@@ -82,42 +68,119 @@
         .edit-link:hover {
             text-decoration: underline;
         }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .input-group input {
+            flex-grow: 1;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+        }
+        .btn-refresh {
+            width: auto;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #4a5568;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .btn-refresh:hover {
+            background-color: #2d3748;
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-6">
     <div class="container">
-        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Datos de Google Sheets ff</h1>
-        <p class="text-gray-600 mb-6 text-center">Haz clic para cargar los datos en formato de tabla.</p>
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Gastos Diarios</h1>
+        <p class="text-gray-600 mb-6 text-center">Cargando todos los datos al iniciar.</p>
         
-        <button id="testBtn" class="btn-test">
-            <i class="fas fa-sync-alt mr-2"></i> Cargar Datos
-        </button>
+        <div class="input-group">
+            <input type="number" id="numRecords" value="" min="1" placeholder="Nº de últimos registros a mostrar">
+            <button id="refreshBtn" class="btn-refresh">
+                <i class="fas fa-sync-alt mr-2"></i> Refrescar
+            </button>
+        </div>
         
         <div id="statusMessage" class="message-box hidden"></div>
         
         <div class="mt-4">
             <table id="dataTable" class="data-table">
                 <thead>
-                    </thead>
+                </thead>
                 <tbody>
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg5OvcdssE7nhgmSiLsX32e_ck0PIqfjlQaKxkkIjT4jp31aWysxMU6pumGkXwQXwo/exec'; // ¡Actualiza con tu URL!
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg5OvcdssE7nhgmSiLsX32e_ck0PIqfjlQaKxkkIjT4jp31aWysxMU6pumGkXwQXwo/exec';
+        
+        // Variable global para almacenar todos los registros
+        let allRecords = [];
 
-        const testBtn = document.getElementById('testBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const numRecordsInput = document.getElementById('numRecords');
         const statusMessage = document.getElementById('statusMessage');
         const dataTable = document.getElementById('dataTable');
         const tableHead = dataTable.querySelector('thead');
         const tableBody = dataTable.querySelector('tbody');
 
-        testBtn.addEventListener('click', async () => {
+        // Función para renderizar la tabla
+        const renderTable = (recordsToDisplay) => {
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            if (recordsToDisplay.length > 0) {
+                const headers = Object.keys(recordsToDisplay[0]).filter(key => key !== 'fila');
+                
+                const headerRow = document.createElement('tr');
+                headers.forEach(headerText => {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+                const actionTh = document.createElement('th');
+                actionTh.textContent = 'Acciones';
+                headerRow.appendChild(actionTh);
+                tableHead.appendChild(headerRow);
+
+                recordsToDisplay.forEach(item => {
+                    const tr = document.createElement('tr');
+                    headers.forEach(header => {
+                        const td = document.createElement('td');
+                        td.textContent = item[header];
+                        tr.appendChild(td);
+                    });
+                    
+                    const actionTd = document.createElement('td');
+                    const editLink = document.createElement('a');
+                    editLink.href = `pagina-editar.html?fila=${item.fila}`;
+                    editLink.className = 'edit-link';
+                    editLink.innerHTML = `<i class="fas fa-edit mr-1"></i> Editar`;
+                    actionTd.appendChild(editLink);
+                    tr.appendChild(actionTd);
+                    
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                 statusMessage.classList.remove('hidden', 'success', 'loading');
+                 statusMessage.classList.add('error');
+                 statusMessage.textContent = 'No se encontraron registros para mostrar.';
+            }
+        };
+
+        // Función para cargar todos los datos desde el servidor
+        const fetchData = async () => {
             statusMessage.classList.remove('hidden', 'success', 'error');
             statusMessage.classList.add('loading');
-            statusMessage.textContent = 'Cargando datos...';
+            statusMessage.textContent = 'Cargando todos los datos...';
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
 
@@ -132,62 +195,52 @@
                 }
 
                 const result = await response.json();
-                console.log('Datos recibidos del servidor:', result);
-
+                
                 if (result.success) {
+                    allRecords = result.data; // Almacenar todos los datos
                     statusMessage.classList.remove('loading', 'error');
                     statusMessage.classList.add('success');
-                    statusMessage.textContent = `¡Datos cargados! Se encontraron ${result.data.length} registros.`;
-
-                    // Asume que la primera fila son las cabeceras
-                    if (result.data.length > 0) {
-                        const headers = Object.keys(result.data[0]).filter(key => key !== 'fila');
-                        
-                        // Crea la fila de encabezados
-                        const headerRow = document.createElement('tr');
-                        headers.forEach(headerText => {
-                            const th = document.createElement('th');
-                            th.textContent = headerText;
-                            headerRow.appendChild(th);
-                        });
-                        const actionTh = document.createElement('th');
-                        actionTh.textContent = 'Acciones';
-                        headerRow.appendChild(actionTh);
-                        tableHead.appendChild(headerRow);
-
-                        // Itera sobre los datos para crear las filas de la tabla
-                        result.data.forEach(item => {
-                            const tr = document.createElement('tr');
-                            headers.forEach(header => {
-                                const td = document.createElement('td');
-                                td.textContent = item[header];
-                                tr.appendChild(td);
-                            });
-                            
-                            // Agrega la celda del botón de edición
-                            const actionTd = document.createElement('td');
-                            const editLink = document.createElement('a');
-                            editLink.href = `pagina-editar.html?fila=${item.fila}`;
-                            editLink.className = 'edit-link';
-                            editLink.innerHTML = `<i class="fas fa-edit mr-1"></i> Editar`;
-                            actionTd.appendChild(editLink);
-                            tr.appendChild(actionTd);
-                            
-                            tableBody.appendChild(tr);
-                        });
-                    }
-
+                    statusMessage.textContent = `¡Datos cargados! Se encontraron ${allRecords.length} registros.`;
+                    
+                    // Renderizar la tabla con todos los registros
+                    renderTable(allRecords);
                 } else {
                     throw new Error(result.message);
                 }
-
             } catch (error) {
                 console.error('Error al cargar los datos:', error);
                 statusMessage.classList.remove('loading', 'success');
                 statusMessage.classList.add('error');
                 statusMessage.textContent = `Error: ${error.message || error}.`;
             }
+        };
+
+        // El botón ahora filtra los datos existentes
+        refreshBtn.addEventListener('click', () => {
+            const recordsToLoad = parseInt(numRecordsInput.value, 10);
+            if (numRecordsInput.value === '') {
+                // Si el input está vacío, muestra todos los registros
+                renderTable(allRecords);
+                statusMessage.classList.remove('hidden', 'loading', 'error');
+                statusMessage.classList.add('success');
+                statusMessage.textContent = `Mostrando todos los ${allRecords.length} registros.`;
+            } else if (!isNaN(recordsToLoad) && recordsToLoad > 0) {
+                // Si es un número, filtra los últimos 'n'
+                const recordsToShow = allRecords.slice(Math.max(allRecords.length - recordsToLoad, 0));
+                renderTable(recordsToShow);
+                statusMessage.classList.remove('hidden', 'loading', 'error');
+                statusMessage.classList.add('success');
+                statusMessage.textContent = `Mostrando los últimos ${recordsToShow.length} registros.`;
+            } else {
+                // Muestra un error si el valor no es válido
+                statusMessage.classList.remove('hidden', 'success', 'loading');
+                statusMessage.classList.add('error');
+                statusMessage.textContent = 'Por favor, introduce un número válido o deja el campo vacío.';
+            }
         });
+
+        // Carga los datos al iniciar la página
+        document.addEventListener('DOMContentLoaded', fetchData);
     </script>
 </body>
 </html>
