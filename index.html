@@ -80,7 +80,7 @@
             border: 1px solid #cbd5e0;
             border-radius: 6px;
         }
-        .btn-refresh {
+        .btn-action {
             width: auto;
             padding: 0.75rem 1rem;
             border-radius: 8px;
@@ -89,21 +89,83 @@
             background-color: #4a5568;
             transition: all 0.2s ease-in-out;
             cursor: pointer;
+            margin-left: auto;
         }
-        .btn-refresh:hover {
+        .btn-action:hover {
             background-color: #2d3748;
+        }
+        .btn-add {
+            background-color: #48bb78;
+        }
+        .btn-add:hover {
+            background-color: #38a169;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-6">
     <div class="container">
-        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Gastos Diarios</h1>
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Datos de Google Sheets</h1>
         <p class="text-gray-600 mb-6 text-center">Cargando todos los datos al iniciar.</p>
         
         <div class="input-group">
             <input type="number" id="numRecords" value="" min="1" placeholder="Nº de últimos registros a mostrar">
-            <button id="refreshBtn" class="btn-refresh">
+            <button id="refreshBtn" class="btn-action">
                 <i class="fas fa-sync-alt mr-2"></i> Refrescar
+            </button>
+            <button id="addBtn" class="btn-action btn-add">
+                <i class="fas fa-plus mr-2"></i> Agregar
             </button>
         </div>
         
@@ -119,18 +181,42 @@
         </div>
     </div>
 
+    <div id="addRecordModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="text-xl font-bold mb-4">Agregar Nuevo Registro</h2>
+            <form id="addRecordForm">
+                </form>
+            <div id="addStatusMessage" class="message-box hidden mt-4"></div>
+            <div class="form-buttons">
+                <button type="submit" form="addRecordForm" class="btn-action btn-add">
+                    <i class="fas fa-save mr-2"></i> Guardar
+                </button>
+                <button type="button" class="btn-action close">
+                    <i class="fas fa-times mr-2"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg5OvcdssE7nhgmSiLsX32e_ck0PIqfjlQaKxkkIjT4jp31aWysxMU6pumGkXwQXwo/exec';
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby7Dl-hxZ_CzQ-wlE67tVAJz9Ahu9rlzEQWgSl8w6vgq_rlvVMIMKVV85kwdC3UFf3a/exec';
         
-        // Variable global para almacenar todos los registros
         let allRecords = [];
+        let sheetHeaders = []; // Para guardar los encabezados de la hoja
 
         const refreshBtn = document.getElementById('refreshBtn');
+        const addBtn = document.getElementById('addBtn');
         const numRecordsInput = document.getElementById('numRecords');
         const statusMessage = document.getElementById('statusMessage');
         const dataTable = document.getElementById('dataTable');
         const tableHead = dataTable.querySelector('thead');
         const tableBody = dataTable.querySelector('tbody');
+
+        const addRecordModal = document.getElementById('addRecordModal');
+        const addRecordForm = document.getElementById('addRecordForm');
+        const addStatusMessage = document.getElementById('addStatusMessage');
+        const closeButtons = document.querySelectorAll('.close');
 
         // Función para renderizar la tabla
         const renderTable = (recordsToDisplay) => {
@@ -197,12 +283,23 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    allRecords = result.data; // Almacenar todos los datos
+                    allRecords = result.data;
                     statusMessage.classList.remove('loading', 'error');
                     statusMessage.classList.add('success');
                     statusMessage.textContent = `¡Datos cargados! Se encontraron ${allRecords.length} registros.`;
                     
-                    // Renderizar la tabla con todos los registros
+                    // Guardar los encabezados para el formulario dinámico
+                    if (allRecords.length > 0) {
+                        sheetHeaders = Object.keys(allRecords[0]).filter(key => key !== 'fila');
+                    } else {
+                        // Si no hay datos, pero el script funciona, al menos obtenemos los headers
+                        const responseHeaders = await fetch(`${GOOGLE_APPS_SCRIPT_WEB_APP_URL}?fila=1`);
+                        const resultHeaders = await responseHeaders.json();
+                        if (resultHeaders.success) {
+                            sheetHeaders = Object.keys(resultHeaders.data).filter(key => key !== 'fila');
+                        }
+                    }
+
                     renderTable(allRecords);
                 } else {
                     throw new Error(result.message);
@@ -215,27 +312,114 @@
             }
         };
 
-        // El botón ahora filtra los datos existentes
+        // Lógica del botón de refrescar
         refreshBtn.addEventListener('click', () => {
             const recordsToLoad = parseInt(numRecordsInput.value, 10);
             if (numRecordsInput.value === '') {
-                // Si el input está vacío, muestra todos los registros
                 renderTable(allRecords);
                 statusMessage.classList.remove('hidden', 'loading', 'error');
                 statusMessage.classList.add('success');
                 statusMessage.textContent = `Mostrando todos los ${allRecords.length} registros.`;
             } else if (!isNaN(recordsToLoad) && recordsToLoad > 0) {
-                // Si es un número, filtra los últimos 'n'
                 const recordsToShow = allRecords.slice(Math.max(allRecords.length - recordsToLoad, 0));
                 renderTable(recordsToShow);
                 statusMessage.classList.remove('hidden', 'loading', 'error');
                 statusMessage.classList.add('success');
                 statusMessage.textContent = `Mostrando los últimos ${recordsToShow.length} registros.`;
             } else {
-                // Muestra un error si el valor no es válido
                 statusMessage.classList.remove('hidden', 'success', 'loading');
                 statusMessage.classList.add('error');
-                statusMessage.textContent = 'Por favor, introduce un número válido o deja el campo vacío.';
+                statusMessage.textContent = 'Por favor, introduce un número válido.';
+            }
+        });
+        
+        // Lógica para el formulario de agregar registro
+        addBtn.addEventListener('click', () => {
+            if (sheetHeaders.length === 0) {
+                addStatusMessage.classList.remove('hidden', 'success', 'loading');
+                addStatusMessage.classList.add('error');
+                addStatusMessage.textContent = 'No se pudieron cargar los encabezados de la hoja. Intente recargar la página.';
+                return;
+            }
+            addRecordForm.innerHTML = '';
+            sheetHeaders.forEach(header => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.textContent = header;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = header;
+                
+                formGroup.appendChild(label);
+                formGroup.appendChild(input);
+                addRecordForm.appendChild(formGroup);
+            });
+            addRecordModal.style.display = 'block';
+        });
+
+        // Cerrar el modal con el botón de "x" y "Cancelar"
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                addRecordModal.style.display = 'none';
+                addRecordForm.reset();
+                addStatusMessage.classList.add('hidden');
+            });
+        });
+
+        // Cerrar el modal si el usuario hace clic fuera de él
+        window.addEventListener('click', (event) => {
+            if (event.target === addRecordModal) {
+                addRecordModal.style.display = 'none';
+                addRecordForm.reset();
+                addStatusMessage.classList.add('hidden');
+            }
+        });
+        
+        // Enviar el nuevo registro
+        addRecordForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            addStatusMessage.classList.remove('hidden', 'success', 'error');
+            addStatusMessage.classList.add('loading');
+            addStatusMessage.textContent = 'Guardando nuevo registro...';
+
+            const formData = {};
+            sheetHeaders.forEach(header => {
+                const input = addRecordForm.querySelector(`[name="${header}"]`);
+                formData[header] = input ? input.value : '';
+            });
+
+            try {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    addStatusMessage.classList.remove('loading', 'error');
+                    addStatusMessage.classList.add('success');
+                    addStatusMessage.textContent = result.message;
+
+                    // Cerrar el modal y recargar los datos de la tabla
+                    setTimeout(() => {
+                        addRecordModal.style.display = 'none';
+                        fetchData();
+                        addRecordForm.reset();
+                        addStatusMessage.classList.add('hidden');
+                    }, 2000);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error al agregar el registro:', error);
+                addStatusMessage.classList.remove('loading', 'success');
+                addStatusMessage.classList.add('error');
+                addStatusMessage.textContent = `Error al agregar el registro: ${error.message}`;
             }
         });
 
