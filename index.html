@@ -73,7 +73,6 @@
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 1rem;
-            justify-content: space-between; /* Alinea los elementos a los extremos */
         }
         .input-group-right {
             display: flex;
@@ -105,6 +104,8 @@
             background-color: #2d3748;
         }
         .btn-add {
+            margin-top: 0.5rem; /* Separación del botón de agregar con el grupo de arriba */
+            width: auto; /* El botón de agregar ya no es de ancho completo */
             background-color: #48bb78;
         }
         .btn-add:hover {
@@ -182,18 +183,16 @@
         <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Datos de Google Sheets</h1>
         <p class="text-gray-600 mb-6 text-center">Cargando todos los datos al iniciar.</p>
         
-        <div class="input-group">
-            <button id="addBtn" class="btn-action btn-add">
-                <i class="fas fa-plus mr-2"></i> Agregar
+        <div class="input-group">          
+            <input type="number" id="numRecords" value="" min="1" placeholder="Nº de últimos registros a mostrar" class="input-records">
+            <button id="refreshBtn" class="btn-action">
+                <i class="fas fa-sync-alt mr-2"></i> Refrescar
             </button>
-            <div class="input-group-right">
-                <input type="number" id="numRecords" value="" min="1" placeholder="Nº de últimos registros a mostrar" class="input-records">
-                <button id="refreshBtn" class="btn-action">
-                    <i class="fas fa-sync-alt mr-2"></i> Refrescar
-                </button>
-            </div>
-
         </div>
+
+        <button id="addBtn" class="btn-action btn-add">
+            <i class="fas fa-plus mr-2"></i> Agregar
+        </button> 
         
         <div id="statusMessage" class="message-box hidden"></div>
         
