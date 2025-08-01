@@ -73,6 +73,16 @@
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 1rem;
+            justify-content: space-between; /* Alinea los elementos a los extremos */
+        }
+        .input-group-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .input-records {
+            width: 80px; /* Tamaño reducido */
+            text-align: center;
         }
         .input-group input {
             flex-grow: 1;
@@ -173,10 +183,12 @@
         <p class="text-gray-600 mb-6 text-center">Cargando todos los datos al iniciar.</p>
         
         <div class="input-group">
-            <input type="number" id="numRecords" value="" min="1" placeholder="Nº de últimos registros a mostrar">
-            <button id="refreshBtn" class="btn-action">
-                <i class="fas fa-sync-alt mr-2"></i> Refrescar
-            </button>
+            <div class="input-group-right">
+                <input type="number" id="numRecords" value="" min="1" placeholder="Nº de últimos registros a mostrar" class="input-records">
+                <button id="refreshBtn" class="btn-action">
+                    <i class="fas fa-sync-alt mr-2"></i> Refrescar
+                </button>
+            </div>
             <button id="addBtn" class="btn-action btn-add">
                 <i class="fas fa-plus mr-2"></i> Agregar
             </button>
