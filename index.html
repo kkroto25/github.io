@@ -349,9 +349,15 @@
                 const label = document.createElement('label');
                 label.textContent = header;
                 
-                const input = document.createElement('input');
-                input.type = 'text';
+                const input = document.createElement('input');               
                 input.name = header;
+
+                // *** CAMBIO AQUÍ: Verifica si el encabezado es una fecha ***
+                if (header.toLowerCase().includes('fecha')) {
+                    input.type = 'date';
+                } else {
+                    input.type = 'text';
+                }
                 
                 formGroup.appendChild(label);
                 formGroup.appendChild(input);
