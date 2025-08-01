@@ -110,10 +110,28 @@
                             const formattedDate = date.toISOString().split('T')[0];
                             input.value = formattedDate;
                         }
-                    } else {
+                    } 
+                    } else if (key.toLowerCase().includes('monto')) {
+                        // Si el header es 'monto', aplicamos la validación
+                        input.type = 'text';
+                        input.setAttribute('oninput', 'validateNumber(this, 2)');
+                    }
+                    else {
                         input.type = 'text';
                         input.value = data[key];
                     }
+
+                // *** CAMBIO CORRECTO AQUÍ: Solo establecemos el tipo de input, el valor se mantiene vacío. ***
+                if (header.toLowerCase().includes('fecha')) {
+                    input.type = 'date';
+                } else if (header.toLowerCase().includes('monto')) {
+                    // Si el header es 'monto', aplicamos la validación
+                    input.type = 'text';
+                    input.setAttribute('oninput', 'validateNumber(this, 2)');
+                } else {
+                    input.type = 'text';
+                } 
+                    
 
                     formGroup.appendChild(label);
                     formGroup.appendChild(input);
@@ -162,6 +180,34 @@
         backBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
+
+        function validateNumber(input, decimals) {
+            // 1. Elimina cualquier carácter que no sea un dígito o un punto.
+            let value = input.value.replace(/[^0-9.]/g, '');
+        
+            // 2. Separa el valor en partes enteras y decimales.
+            const parts = value.split('.');
+            let integerPart = parts[0];
+            let decimalPart = parts[1];
+        
+            // 3. Si hay más de una parte decimal (más de un punto), las une.
+            if (parts.length > 2) {
+                decimalPart = parts.slice(1).join('');
+            }
+        
+            // 4. Limita los decimales a la cantidad deseada.
+            if (decimalPart && decimalPart.length > decimals) {
+                decimalPart = decimalPart.substring(0, decimals);
+            }
+            
+            // 5. Verifica si el valor termina con un punto y lo preserva.
+            const hasTrailingDot = value.endsWith('.');
+        
+            // 6. Vuelve a unir las partes y actualiza el valor del input.
+            // La nueva lógica preserva el punto si el usuario lo acaba de escribir.
+            input.value = integerPart + (decimalPart || hasTrailingDot ? '.' + (decimalPart || '') : '');
+        }
+
         
         // Cargar los datos al iniciar la página
         loadData();
