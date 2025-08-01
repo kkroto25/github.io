@@ -93,10 +93,15 @@
                     const label = document.createElement('label');
                     label.textContent = key;
                     
-                    const input = document.createElement('input');
-                    input.type = 'text';
+                    const input = document.createElement('input');                    
                     input.name = key;
                     input.value = data[key];
+
+                    if (key.toLowerCase().includes('fecha')) {
+                        input.type = 'date';
+                    } else {
+                        input.type = 'text';
+                    }
 
                     formGroup.appendChild(label);
                     formGroup.appendChild(input);
