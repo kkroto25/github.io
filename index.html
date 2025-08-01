@@ -152,6 +152,19 @@
             gap: 0.5rem;
             margin-top: 1rem;
         }
+        /* --- ESTILOS AGREGADOS PARA LA TABLA CON SCROLL --- */
+        .table-container {
+            max-height: 500px; /* Puedes ajustar esta altura según tus necesidades */
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        /* Para que el encabezado se mantenga visible al hacer scroll */
+        .data-table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #4299e1;
+            z-index: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-6">
@@ -172,12 +185,14 @@
         <div id="statusMessage" class="message-box hidden"></div>
         
         <div class="mt-4">
-            <table id="dataTable" class="data-table">
-                <thead>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table id="dataTable" class="data-table">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -229,11 +244,9 @@
                 const headers = Object.keys(recordsToDisplay[0]).filter(key => key !== 'fila');
                 
                 const headerRow = document.createElement('tr');
-
                 const actionTh = document.createElement('th');
                 actionTh.textContent = 'Acciones';
                 headerRow.appendChild(actionTh);
-
                 
                 headers.forEach(headerText => {
                     const th = document.createElement('th');
@@ -242,9 +255,7 @@
                 });
 
                 tableHead.appendChild(headerRow);
-
-
-
+                
                 recordsToDisplay.forEach(item => {
                     const tr = document.createElement('tr');
 
@@ -254,11 +265,10 @@
                     editLink.className = 'edit-link';
                     editLink.innerHTML = `<i class="fas fa-edit mr-1"></i> Editar`;
                     actionTd.appendChild(editLink);
+                    tr.appendChild(actionTd);
                         
                     headers.forEach(header => {
-                        const td = document.createElement('td');
-
-                        
+                        const td = document.createElement('td');                        
                         // *** CAMBIO AQUÍ: Verifica y formatea la fecha en la tabla ***
                         let cellValue = item[header];
                         if (header.toLowerCase().includes('fecha') && cellValue) {
@@ -269,10 +279,9 @@
                         
                         td.textContent = cellValue;
                         tr.appendChild(td);
-                    });
-                    
+                    });  
 
-                    tr.appendChild(actionTd);
+                    
                     
                     tableBody.appendChild(tr);
                 });
