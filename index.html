@@ -467,6 +467,18 @@
             sheetHeaders.forEach(header => {
                 const input = addRecordForm.querySelector(`[name="${header}"]`);
                 formData[header] = input ? input.value : '';
+
+                // --- LÓGICA DE FORMATO DE FECHA AGREGADA AQUÍ ---
+                if (header.toLowerCase().includes('fecha') && value) {
+                    const date = new Date(value);
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const month = monthNames[date.getMonth()];
+                    const year = date.getFullYear();
+                    value = `${day}-${month}-${year}`;
+                }
+                
+                formData[header] = value;
+                
             });
 
             try {
@@ -535,4 +547,5 @@
     </script>
 </body>
 </html>
+
 
