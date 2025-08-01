@@ -1,26 +1,114 @@
-<body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos de Google Sheets</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f7fafc;
+        }
+        .container {
+            max-width: 90%;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-test {
+            display: inline-block;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #4a5568;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .btn-test:hover {
+            background-color: #2d3748;
+        }
+        .message-box {
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .message-box.hidden {
+            display: none;
+        }
+        .message-box.loading {
+            color: #4a5568;
+            background-color: #e2e8f0;
+        }
+        .message-box.success {
+            color: #276749;
+            background-color: #f0fff4;
+        }
+        .message-box.error {
+            color: #c53030;
+            background-color: #fff5f5;
+        }
+        .data-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .data-card p {
+            margin: 0;
+            padding: 0.25rem 0;
+            display: flex;
+            align-items: center;
+        }
+        .data-card p i {
+            width: 20px;
+            margin-right: 0.5rem;
+            color: #4a5568;
+        }
+        .card-header {
+            font-weight: 700;
+            color: #2d3748;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-6">
     <div class="container">
-        <h1 class="text-2xl font-extrabold text-gray-800 mb-4">Datos de Google Sheets</h1>
-        <p class="text-gray-600">Haz clic en el botón para cargar los datos de la hoja de cálculo.</p>
-        <button id="testBtn" class="btn-test">Cargar Datos</button>
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Datos de Google Sheets</h1>
+        <p class="text-gray-600 mb-6 text-center">Haz clic para cargar los datos en un formato amigable para móviles.</p>
+        
+        <button id="testBtn" class="btn-test">
+            <i class="fas fa-sync-alt mr-2"></i> Cargar Datos X
+        </button>
+        
         <div id="statusMessage" class="message-box hidden"></div>
         
-        <ul id="dataList" class="mt-4 p-4 border rounded-md bg-gray-50"></ul>
+        <div id="dataContainer" class="mt-4"></div>
     </div>
 
     <script>
-        // *** IMPORTANTE: Reemplaza esta URL con la NUEVA URL de tu despliegue ***
-        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx22fvDAtKDkjIfzZp-7HYjU6kLGtiW4RzRLx_rOi6ra5Uq5aOwRpkjQnjFXeDuXnY/exec';
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx22fvDAtKDkjIfzZp-7HYjU6kLGtiW4RzRLx_rOi6ra5Uq5aOwRpkjQnjFXeDuXnY/exec'; // ¡Actualiza con tu URL!
 
         const testBtn = document.getElementById('testBtn');
         const statusMessage = document.getElementById('statusMessage');
-        const dataList = document.getElementById('dataList');
+        const dataContainer = document.getElementById('dataContainer');
 
         testBtn.addEventListener('click', async () => {
             statusMessage.classList.remove('hidden', 'success', 'error');
             statusMessage.classList.add('loading');
             statusMessage.textContent = 'Cargando datos...';
-            dataList.innerHTML = ''; // Limpia la lista anterior
+            dataContainer.innerHTML = ''; // Limpia el contenedor
 
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
@@ -38,14 +126,30 @@
                 if (result.success) {
                     statusMessage.classList.remove('loading', 'error');
                     statusMessage.classList.add('success');
-                    statusMessage.textContent = `¡Datos cargados con éxito! Se encontraron ${result.data.length} filas.`;
+                    statusMessage.textContent = `¡Datos cargados! Se encontraron ${result.data.length} filas.`;
 
-                    // Itera sobre los datos y los añade a la lista
-                    result.data.forEach(row => {
-                        const li = document.createElement('li');
-                        li.textContent = row.join(', '); // Une las celdas de la fila con una coma
-                        dataList.appendChild(li);
+                    // Asume que la primera fila son las cabeceras
+                    const headers = result.data.shift(); // Elimina la primera fila y la guarda como cabeceras
+
+                    // Itera sobre los datos restantes para crear una tarjeta por cada fila
+                    result.data.forEach((row, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'data-card';
+                        
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'card-header';
+                        cardHeader.textContent = `Registro ${index + 1}`;
+                        card.appendChild(cardHeader);
+
+                        // Itera sobre las celdas de la fila y las cabeceras
+                        row.forEach((cell, cellIndex) => {
+                            const p = document.createElement('p');
+                            p.innerHTML = `<i class="fas fa-info-circle"></i> <strong>${headers[cellIndex] || 'Columna'}:</strong> ${cell}`;
+                            card.appendChild(p);
+                        });
+                        dataContainer.appendChild(card);
                     });
+
                 } else {
                     throw new Error(result.message);
                 }
@@ -59,3 +163,4 @@
         });
     </script>
 </body>
+</html>
