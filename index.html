@@ -495,18 +495,22 @@
             let integerPart = parts[0];
             let decimalPart = parts[1];
         
-            // 3. Si hay más de una parte decimal (más de un punto), elimina los extras.
+            // 3. Si hay más de una parte decimal (más de un punto), las une.
             if (parts.length > 2) {
                 decimalPart = parts.slice(1).join('');
             }
-            
+        
             // 4. Limita los decimales a la cantidad deseada.
             if (decimalPart && decimalPart.length > decimals) {
                 decimalPart = decimalPart.substring(0, decimals);
             }
             
-            // 5. Vuelve a unir las partes y actualiza el valor del input.
-            input.value = integerPart + (decimalPart ? '.' + decimalPart : '');
+            // 5. Verifica si el valor termina con un punto y lo preserva.
+            const hasTrailingDot = value.endsWith('.');
+        
+            // 6. Vuelve a unir las partes y actualiza el valor del input.
+            // La nueva lógica preserva el punto si el usuario lo acaba de escribir.
+            input.value = integerPart + (decimalPart || hasTrailingDot ? '.' + (decimalPart || '') : '');
         }
 
 
