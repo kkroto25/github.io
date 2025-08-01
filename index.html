@@ -1,18 +1,16 @@
-<!DOCTYPE html>
+
+  <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datos en Cuadrícula</title>
+    <title>Datos de Google Sheets</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* Parámetro para ajustar el tamaño de las tarjetas.
-               Usa '1fr' para tamaño automático, o un valor fijo como '100px' */
             --card-size: 1fr;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #f7fafc;
@@ -26,6 +24,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .btn-test {
+            /* ... (mantener estilos) */
             display: inline-block;
             width: 100%;
             padding: 0.75rem;
@@ -40,6 +39,7 @@
             background-color: #2d3748;
         }
         .message-box {
+            /* ... (mantener estilos) */
             padding: 1rem;
             border-radius: 8px;
             font-weight: 600;
@@ -66,14 +66,6 @@
             gap: 10px;
             grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
         }
-        .grid-header {
-            background-color: #4299e1; /* Color de encabezado azul */
-            color: #ffffff;
-            font-weight: 700;
-            padding: 0.5rem;
-            border-radius: 6px 6px 0 0;
-            text-align: center;
-        }
         .grid-card {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
@@ -83,16 +75,39 @@
             display: flex;
             flex-direction: column;
         }
+        .grid-header {
+            background-color: #4299e1;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 0.5rem;
+            border-radius: 6px 6px 0 0;
+            text-align: center;
+        }
         .grid-content {
             padding: 0.5rem;
             flex-grow: 1;
+        }
+        .edit-button {
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            background-color: #f6ad55;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            text-decoration: none;
+            border-top: 1px solid #e2e8f0;
+            transition: background-color 0.2s;
+        }
+        .edit-button:hover {
+            background-color: #dd6b20;
         }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-6">
     <div class="container">
-        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Datos de Google Sheets ss</h1>
-        <p class="text-gray-600 mb-6 text-center">Haz clic para cargar los datos en un formato de cuadrícula.</p>
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Datos de Google Sheets GG</h1>
+        <p class="text-gray-600 mb-6 text-center">Haz clic para cargar los datos.</p>
         
         <button id="testBtn" class="btn-test">
             <i class="fas fa-sync-alt mr-2"></i> Cargar Datos
@@ -114,7 +129,7 @@
             statusMessage.classList.remove('hidden', 'success', 'error');
             statusMessage.classList.add('loading');
             statusMessage.textContent = 'Cargando datos...';
-            dataContainer.innerHTML = ''; // Limpia el contenedor
+            dataContainer.innerHTML = '';
 
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
@@ -132,28 +147,37 @@
                 if (result.success) {
                     statusMessage.classList.remove('loading', 'error');
                     statusMessage.classList.add('success');
-                    statusMessage.textContent = `¡Datos cargados! Se encontraron ${result.data.length} filas.`;
+                    statusMessage.textContent = `¡Datos cargados! Se encontraron ${result.data.length} registros.`;
 
-                    const headers = result.data.shift();
-
-                    result.data.forEach((row, index) => {
+                    result.data.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'grid-card';
                         
                         const cardHeader = document.createElement('div');
                         cardHeader.className = 'grid-header';
-                        cardHeader.textContent = `Registro ${index + 1}`;
+                        cardHeader.textContent = `Registro ${item.fila}`;
                         card.appendChild(cardHeader);
 
                         const cardContent = document.createElement('div');
                         cardContent.className = 'grid-content';
                         
-                        row.forEach((cell, cellIndex) => {
-                            const p = document.createElement('p');
-                            p.innerHTML = `<strong>${headers[cellIndex] || 'Columna'}:</strong> ${cell}`;
-                            cardContent.appendChild(p);
-                        });
+                        // Recorrer las propiedades del objeto (saltando la propiedad 'fila')
+                        for (const key in item) {
+                            if (key !== 'fila') {
+                                const p = document.createElement('p');
+                                p.innerHTML = `<strong>${key}:</strong> ${item[key]}`;
+                                cardContent.appendChild(p);
+                            }
+                        }
                         card.appendChild(cardContent);
+                        
+                        // Botón de edición que pasa el número de fila
+                        const editLink = document.createElement('a');
+                        editLink.href = `pagina-editar.html?fila=${item.fila}`;
+                        editLink.className = 'edit-button';
+                        editLink.innerHTML = `<i class="fas fa-edit mr-2"></i> Editar`;
+                        card.appendChild(editLink);
+                        
                         dataContainer.appendChild(card);
                     });
 
