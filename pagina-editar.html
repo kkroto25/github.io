@@ -97,10 +97,20 @@
                     input.name = key;
                     input.value = data[key];
 
+                    // *** CAMBIO AQUÍ: Verifica y formatea la fecha si es necesario ***
                     if (key.toLowerCase().includes('fecha')) {
                         input.type = 'date';
+                        
+                        // Si el valor no está vacío, lo formatea
+                        if (data[key]) {
+                            const date = new Date(data[key]);
+                            // Convierte la fecha a un formato YYYY-MM-DD
+                            const formattedDate = date.toISOString().split('T')[0];
+                            input.value = formattedDate;
+                        }
                     } else {
                         input.type = 'text';
+                        input.value = data[key];
                     }
 
                     formGroup.appendChild(label);
