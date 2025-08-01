@@ -239,6 +239,13 @@
                 headerRow.appendChild(actionTh);
                 tableHead.appendChild(headerRow);
 
+                const actionTd = document.createElement('td');
+                const editLink = document.createElement('a');
+                editLink.href = `pagina-editar.html?fila=${item.fila}`;
+                editLink.className = 'edit-link';
+                editLink.innerHTML = `<i class="fas fa-edit mr-1"></i> Editar`;
+                actionTd.appendChild(editLink);
+
                 recordsToDisplay.forEach(item => {
                     const tr = document.createElement('tr');
                     headers.forEach(header => {
@@ -257,12 +264,7 @@
                         tr.appendChild(td);
                     });
                     
-                    const actionTd = document.createElement('td');
-                    const editLink = document.createElement('a');
-                    editLink.href = `pagina-editar.html?fila=${item.fila}`;
-                    editLink.className = 'edit-link';
-                    editLink.innerHTML = `<i class="fas fa-edit mr-1"></i> Editar`;
-                    actionTd.appendChild(editLink);
+
                     tr.appendChild(actionTd);
                     
                     tableBody.appendChild(tr);
