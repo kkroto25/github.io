@@ -185,10 +185,14 @@
         
         <div class="input-group">          
             <div class="input-group-right">
+                
                 <input type="number" id="numRecords" value="" min="1" placeholder="Nº de últimos registros a mostrar" class="input-records">
                 <button id="refreshBtn" class="btn-action">
                     <i class="fas fa-sync-alt mr-2"></i> Refrescar
                 </button>
+                <button id="readAllBtn" class="btn-action">
+                    <i class="fas fa-list mr-2"></i> Leer todos
+                </button>                
             </div>
         </div>
 
@@ -233,6 +237,9 @@
     <script>
         //const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby7Dl-hxZ_CzQ-wlE67tVAJz9Ahu9rlzEQWgSl8w6vgq_rlvVMIMKVV85kwdC3UFf3a/exec';
         
+        
+        const readAllBtn = document.getElementById('readAllBtn'); // <-- NUEVA CONSTANTE
+
         let allRecords = [];
         let sheetHeaders = []; // Para guardar los encabezados de la hoja
 
@@ -314,44 +321,47 @@
         };
 
         // Función para cargar todos los datos desde el servidor
-        const fetchData = async () => {
+        const fetchData = async (limit) => {
             statusMessage.classList.remove('hidden', 'success', 'error');
             statusMessage.classList.add('loading');
-            statusMessage.textContent = 'Cargando todos los datos...';
+            statusMessage.textContent = 'Cargando datos...';
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
-
+        
             try {
-                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+                let url = GOOGLE_APPS_SCRIPT_WEB_APP_URL;
+                if (limit) {
+                    url += `?limit=${limit}`;
+                }
+                
+                const response = await fetch(url, {
                     method: 'GET',
                     mode: 'cors'
                 });
-
+        
                 if (!response.ok) {
                     throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
                 }
-
+        
                 const result = await response.json();
                 
                 if (result.success) {
                     allRecords = result.data;
-                    statusMessage.classList.remove('loading', 'error');
-                    statusMessage.classList.add('success');
-                    statusMessage.textContent = `¡Datos cargados! Se encontraron ${allRecords.length} registros.`;
-                    
-                    // Guardar los encabezados para el formulario dinámico
                     if (allRecords.length > 0) {
                         sheetHeaders = Object.keys(allRecords[0]).filter(key => key !== 'fila');
-                    } else {
-                        // Si no hay datos, pero el script funciona, al menos obtenemos los headers
-                        const responseHeaders = await fetch(`${GOOGLE_APPS_SCRIPT_WEB_APP_URL}?fila=1`);
-                        const resultHeaders = await responseHeaders.json();
-                        if (resultHeaders.success) {
-                            sheetHeaders = Object.keys(resultHeaders.data).filter(key => key !== 'fila');
+                        renderTable(allRecords);
+                        statusMessage.classList.remove('loading', 'error');
+                        statusMessage.classList.add('success');
+                        if (limit) {
+                            statusMessage.textContent = `Mostrando los últimos ${allRecords.length} registros.`;
+                        } else {
+                            statusMessage.textContent = `¡Todos los ${allRecords.length} registros cargados!`;
                         }
+                    } else {
+                        statusMessage.classList.remove('loading', 'success');
+                        statusMessage.classList.add('error');
+                        statusMessage.textContent = 'No se encontraron registros en la hoja.';
                     }
-
-                    renderTable(allRecords);
                 } else {
                     throw new Error(result.message);
                 }
@@ -382,6 +392,11 @@
                 statusMessage.classList.add('error');
                 statusMessage.textContent = 'Por favor, introduce un número válido.';
             }
+        });
+
+        readAllBtn.addEventListener('click', () => {
+            numRecordsInput.value = '';
+            fetchData(); // Llama a la función sin el parámetro limit
         });
         
         // Lógica para el formulario de agregar registro
@@ -515,7 +530,9 @@
 
 
         // Carga los datos al iniciar la página
-        document.addEventListener('DOMContentLoaded', fetchData);
+        document.addEventListener('DOMContentLoaded', () => fetchData(5));
+       
     </script>
 </body>
 </html>
+
