@@ -1,114 +1,61 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba de Conexión GET</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            background-color: #ffffff;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-        .btn-test {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.85rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            border: none;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-            width: 100%;
-            margin-top: 1rem;
-        }
-        .btn-test:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-        }
-        .message-box {
-            padding: 1rem;
-            border-radius: 0.75rem;
-            font-weight: 500;
-            text-align: center;
-            margin-top: 1rem;
-        }
-        .message-box.success {
-            background-color: #d1fae5;
-            color: #065f46;
-            border: 1px solid #34d399;
-        }
-        .message-box.error {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #ef4444;
-        }
-        .message-box.loading {
-            background-color: #e0f2fe;
-            color: #1e40af;
-            border: 1px solid #60a5fa;
-        }
-    </style>
-</head>
 <body>
     <div class="container">
-        <h1 class="text-2xl font-extrabold text-gray-800 mb-4">Prueba de Conexión GET</h1>
-        <p class="text-gray-600">Haz clic en el botón para verificar que el método GETd funciona.</p>
-        <button id="testBtn" class="btn-test">Probar Conexión</button>
-        <div id="message" class="message-box hidden"></div>
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4">Datos de Google Sheets</h1>
+        <p class="text-gray-600">Haz clic en el botón para cargar los datos de la hoja de cálculo.</p>
+        <button id="testBtn" class="btn-test">Cargar Datos</button>
+        <div id="statusMessage" class="message-box hidden"></div>
+        
+        <ul id="dataList" class="mt-4 p-4 border rounded-md bg-gray-50"></ul>
     </div>
+
     <script>
         // *** IMPORTANTE: Reemplaza esta URL con la NUEVA URL de tu despliegue ***
-        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbylcZzHgeyZv5kXgTxjy-fI7W4AJLLiM-uqBZcjtvWtu8nyJgk8tv2HDOUlzeCP4qfd/exec'; // ¡Reemplaza con tu URL real!
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/TU_NUEVA_URL_DE_DESPLIEGUE/exec';
 
         const testBtn = document.getElementById('testBtn');
-        const messageBox = document.getElementById('message');
+        const statusMessage = document.getElementById('statusMessage');
+        const dataList = document.getElementById('dataList');
 
         testBtn.addEventListener('click', async () => {
-            messageBox.classList.remove('hidden', 'success', 'error');
-            messageBox.classList.add('loading');
-            messageBox.textContent = 'Probando conexión...';
+            statusMessage.classList.remove('hidden', 'success', 'error');
+            statusMessage.classList.add('loading');
+            statusMessage.textContent = 'Cargando datos...';
+            dataList.innerHTML = ''; // Limpia la lista anterior
 
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                     method: 'GET',
-                    mode: 'cors',
-                    cache: 'no-cache'
+                    mode: 'cors'
                 });
-
-                console.log('Respuesta completa del servidor:', response); 
 
                 if (!response.ok) {
                     throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
                 }
 
                 const result = await response.json();
-                messageBox.classList.remove('loading', 'error');
-                messageBox.classList.add('success');
-                messageBox.textContent = result.message;
+                console.log('Datos recibidos del servidor:', result);
+
+                if (result.success) {
+                    statusMessage.classList.remove('loading', 'error');
+                    statusMessage.classList.add('success');
+                    statusMessage.textContent = `¡Datos cargados con éxito! Se encontraron ${result.data.length} filas.`;
+
+                    // Itera sobre los datos y los añade a la lista
+                    result.data.forEach(row => {
+                        const li = document.createElement('li');
+                        li.textContent = row.join(', '); // Une las celdas de la fila con una coma
+                        dataList.appendChild(li);
+                    });
+                } else {
+                    throw new Error(result.message);
+                }
+
             } catch (error) {
-                console.error('Error de conexión:', error);
-                messageBox.classList.remove('loading', 'success');
-                messageBox.classList.add('error');
-                messageBox.textContent = `Error de conexión: ${error.message || error}.`;
+                console.error('Error al cargar los datos:', error);
+                statusMessage.classList.remove('loading', 'success');
+                statusMessage.classList.add('error');
+                statusMessage.textContent = `Error: ${error.message || error}.`;
             }
         });
     </script>
 </body>
-</html>
