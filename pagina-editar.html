@@ -85,52 +85,45 @@
         }
 
         // Función para crear el formulario dinámicamente
-        function renderForm(data) {
+        const renderForm = (data) => {
             editForm.innerHTML = '';
-            for (const key in data) {
-                if (key !== 'fila') { // No mostrar el campo de fila en el formulario
-                    const formGroup = document.createElement('div');
-                    formGroup.className = 'form-group';
-                    
-                    const label = document.createElement('label');
-                    label.textContent = key;
-                    
-                    const input = document.createElement('input');                    
-                    input.name = key;
-                    input.value = data[key];
-
-                    // *** CAMBIO AQUÍ: Verifica y formatea la fecha si es necesario ***
-                    if (key.toLowerCase().includes('fecha')) {
-                        input.type = 'date';
-                        
-                        // Si el valor no está vacío, lo formatea
-                        if (data[key]) {
-                            const [day, monthStr, year] = data[key].split('-');
-                            const monthIndex = monthNames.indexOf(monthStr);
-                    
-                            if (monthIndex > -1) {
-                                const formattedMonth = (monthIndex + 1).toString().padStart(2, '0');
-                                const formattedDay = day.toString().padStart(2, '0');
-                                input.value = `${year}-${formattedMonth}-${formattedDay}`;
-                            }
-                        }
-                    } 
-                    else if (key.toLowerCase().includes('monto')) {
-                        // Si el header es 'monto', aplicamos la validación
-                        input.type = 'text';
-                        input.setAttribute('oninput', 'validateNumber(this, 2)');
-                    }
-                    else {
-                        input.type = 'text';
-                        input.value = data[key];
-                    }
-             
-                    formGroup.appendChild(label);
-                    formGroup.appendChild(input);
-                    editForm.appendChild(formGroup);
+            const headers = Object.keys(data).filter(key => key !== 'fila');
+            const filaInput = document.createElement('input');
+            filaInput.type = 'hidden';
+            filaInput.id = 'fila';
+            filaInput.value = data.fila;
+            editForm.appendChild(filaInput);
+        
+            headers.forEach(header => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.textContent = header;
+                
+                const input = document.createElement('input');
+                input.name = header;
+                
+                let value = data[header];
+                if (header.toLowerCase().includes('fecha') && value) {
+                    input.type = 'date';
+                    const date = new Date(value); // <-- Convierte la cadena ISO a un objeto Date
+                    const formattedDate = date.toISOString().split('T')[0]; // <-- Formato YYYY-MM-DD
+                    input.value = formattedDate;
+                } else if (header.toLowerCase().includes('monto')) {
+                    input.type = 'text';
+                    input.setAttribute('oninput', 'validateNumber(this, 2)');
+                    input.value = value;
+                } else {
+                    input.type = 'text';
+                    input.value = value;
                 }
-            }
-        }
+        
+                formGroup.appendChild(label);
+                formGroup.appendChild(input);
+                editForm.appendChild(formGroup);
+            });
+        };
         
         // Manejar el clic en el botón de actualización
         updateBtn.addEventListener('click', async () => {
@@ -139,27 +132,27 @@
             statusMessage.textContent = 'Actualizando datos...';
         
             const formData = {};
+            const fila = document.getElementById('fila').value;
             formData.fila = fila;
+            
             editForm.querySelectorAll('input').forEach(input => {
                 let value = input.value;
                 
-                // Verifica si el input es para la columna de fecha
                 if (input.name.toLowerCase().includes('fecha') && value) {
-                    const date = new Date(value); // El valor viene como yyyy-MM-dd del calendario
+                    const date = new Date(value);
                     const day = date.getDate().toString().padStart(2, '0');
                     const month = monthNames[date.getMonth()];
                     const year = date.getFullYear();
-                    value = `${day}-${month}-${year}`; // Convertimos a dd-mon-yyyy
+                    value = `${day}-${month}-${year}`;
                 }
-                
-                formData[input.name] = input.value;
+        
+                formData[input.name] = value;
             });
         
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
-                    // *** CAMBIO AQUÍ: Ya no se envía Content-Type para evitar el "preflight" ***
                     body: JSON.stringify(formData)
                 });
                 
