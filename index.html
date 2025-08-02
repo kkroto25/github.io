@@ -239,6 +239,7 @@
         
         
         const readAllBtn = document.getElementById('readAllBtn'); // <-- NUEVA CONSTANTE
+        const addRecordSubmitBtn = document.getElementById('addRecordSubmitBtn'); // <-- Asegúrate de que tu botón tiene este ID
 
         let allRecords = [];
         let sheetHeaders = []; // Para guardar los encabezados de la hoja
@@ -461,7 +462,9 @@
         // Enviar el nuevo registro
         addRecordForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            
+
+             // Deshabilita el botón y muestra el estado de cargando
+            addRecordSubmitBtn.disabled = true; // <-- Nueva línea
             addStatusMessage.classList.remove('hidden', 'success', 'error');
             addStatusMessage.classList.add('loading');
             addStatusMessage.textContent = 'Guardando nuevo registro...';
@@ -518,9 +521,19 @@
                     // Cerrar el modal y recargar los datos de la tabla
                     setTimeout(() => {
                         addRecordModal.style.display = 'none';
-                        fetchData();
+
+                         // --- LÓGICA CORREGIDA PARA RECARGAR ---
+                        const recordsToLoad = numRecordsInput.value === '' ? allRecords.length : parseInt(numRecordsInput.value, 10);
+                        if (!isNaN(recordsToLoad) && recordsToLoad > 0) {
+                            fetchData(recordsToLoad);
+                        } else {
+                            // Si el input no tiene un valor válido, recarga por defecto los 5 últimos
+                            fetchData(5); 
+                        }
+                        
                         addRecordForm.reset();
                         addStatusMessage.classList.add('hidden');
+                        addRecordSubmitBtn.disabled = false; // <-- Habilita el botón al finalizar            
                     }, 2000);
                 } else {
                     throw new Error(result.message);
@@ -566,15 +579,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             const savedLimit = localStorage.getItem('recordLimit');
             
-            if (savedLimit === 'all') {
-                numRecordsInput.value = ''; // Limpia el input para que se entienda que se muestran todos
-                fetchData();
-            } else if (savedLimit && !isNaN(parseInt(savedLimit, 10))) {
-                // Si hay un número guardado, lo usa y lo muestra en el input
+            // Si hay un número guardado y no es "all", lo usa
+            if (savedLimit && savedLimit !== 'all' && !isNaN(parseInt(savedLimit, 10))) {
                 numRecordsInput.value = savedLimit;
                 fetchData(parseInt(savedLimit, 10));
             } else {
-                // Si no hay nada guardado, usa el valor por defecto de 5
+                // En cualquier otro caso (si no hay nada guardado o si está guardado "all"),
+                // usa el valor por defecto de 5
                 numRecordsInput.value = '5';
                 fetchData(5);
             }
@@ -583,6 +594,7 @@
     </script>
 </body>
 </html>
+
 
 
 
