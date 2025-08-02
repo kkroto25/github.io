@@ -397,6 +397,7 @@
         readAllBtn.addEventListener('click', () => {
             numRecordsInput.value = '';
             fetchData(); // Llama a la función sin el parámetro limit
+            localStorage.setItem('recordLimit', 'all'); // <-- Guarda "all"
         });
         
         // Lógica para el formulario de agregar registro
@@ -542,10 +543,26 @@
 
 
         // Carga los datos al iniciar la página
-        document.addEventListener('DOMContentLoaded', () => fetchData(5));
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLimit = localStorage.getItem('recordLimit');
+            
+            if (savedLimit === 'all') {
+                numRecordsInput.value = ''; // Limpia el input para que se entienda que se muestran todos
+                fetchData();
+            } else if (savedLimit && !isNaN(parseInt(savedLimit, 10))) {
+                // Si hay un número guardado, lo usa y lo muestra en el input
+                numRecordsInput.value = savedLimit;
+                fetchData(parseInt(savedLimit, 10));
+            } else {
+                // Si no hay nada guardado, usa el valor por defecto de 5
+                numRecordsInput.value = '5';
+                fetchData(5);
+            }
+        });
        
     </script>
 </body>
 </html>
+
 
 
