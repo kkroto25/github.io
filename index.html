@@ -222,7 +222,7 @@
                 </form>
             <div id="addStatusMessage" class="message-box hidden mt-4"></div>
             <div class="form-buttons">
-                <button type="submit" form="addRecordForm" class="btn-action btn-add">
+                <button type="submit" form="addRecordForm" class="btn-action btn-add" id="addRecordSubmitBtn">
                     <i class="fas fa-save mr-2"></i> Guardar
                 </button>
                 <button type="button" class="btn-action close">
@@ -240,6 +240,7 @@
         
         const readAllBtn = document.getElementById('readAllBtn'); // <-- NUEVA CONSTANTE
         const addRecordSubmitBtn = document.getElementById('addRecordSubmitBtn'); // <-- Asegúrate de que tu botón tiene este ID
+        const addRecordSubmitBtn = document.getElementById('addRecordSubmitBtn');
 
         let allRecords = [];
         let sheetHeaders = []; // Para guardar los encabezados de la hoja
@@ -594,6 +595,7 @@
     </script>
 </body>
 </html>
+
 
 
 
