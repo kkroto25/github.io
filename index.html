@@ -473,11 +473,29 @@
 
                 // --- LÓGICA DE FORMATO DE FECHA AGREGADA AQUÍ ---
                 if (header.toLowerCase().includes('fecha') && value) {
+
+                      // Obtenemos los componentes de la fecha
+                    const parts = value.split('-');
+                    const year = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1; // El mes en JavaScript es 0-indexed
+                    const day = parseInt(parts[2], 10);
+                    
+                    // Creamos la fecha en UTC para evitar el cambio de día
+                    const date = new Date(Date.UTC(year, month, day));
+            
+                    const dayFormatted = date.getUTCDate().toString().padStart(2, '0');
+                    const monthFormatted = monthNames[date.getUTCMonth()];
+                    const yearFormatted = date.getUTCFullYear();
+                    
+                    value = `${dayFormatted}-${monthFormatted}-${yearFormatted}`;
+
+
+                    /*
                     const date = new Date(value);
                     const day = date.getDate().toString().padStart(2, '0');
                     const month = monthNames[date.getMonth()]; // <-- monthNames ahora tiene meses en inglés
                     const year = date.getFullYear();
-                    value = `${day}-${month}-${year}`;
+                    value = `${day}-${month}-${year}`;*/
                 }
                 
                 formData[header] = value;
@@ -565,6 +583,7 @@
     </script>
 </body>
 </html>
+
 
 
 
