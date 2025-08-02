@@ -127,6 +127,7 @@
         
         // Manejar el clic en el botón de actualización
         updateBtn.addEventListener('click', async () => {
+            updateBtn.disabled = true;
             statusMessage.classList.remove('hidden', 'success', 'error');
             statusMessage.classList.add('loading');
             statusMessage.textContent = 'Actualizando datos...';
@@ -171,6 +172,7 @@
                     statusMessage.classList.remove('loading', 'error');
                     statusMessage.classList.add('success');
                     statusMessage.textContent = result.message;
+                    updateBtn.disabled = false;
                 } else {
                     throw new Error(result.message);
                 }
