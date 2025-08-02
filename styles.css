@@ -1,0 +1,6 @@
+/* Estilo para los botones deshabilitados */
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.6; /* Hace el botón semitransparente */
+    cursor: not-allowed; /* Cambia el cursor a un símbolo de "no permitido" */
+}
