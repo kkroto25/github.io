@@ -10,8 +10,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helv
 .message-box.loading { color: #4a5568; background-color: #e2e8f0; }
 .message-box.success { color: #276749; background-color: #f0fff4; }
 .message-box.error { color: #c53030; background-color: #fff5f5; }
-.btn:disabled,
-.btn[disabled] {
+.btn-submit:disabled,
+.btn-submit[disabled] {
     opacity: 0.6; /* Hace el botón semitransparente */
     cursor: not-allowed; /* Cambia el cursor a un símbolo de "no permitido" */
 }
