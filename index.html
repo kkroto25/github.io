@@ -287,7 +287,8 @@
                     editLink.innerHTML = `<i class="fas fa-edit mr-1"></i> Editar`;
                     actionTd.appendChild(editLink);
                     tr.appendChild(actionTd);
-                        
+
+                    const spanishMonthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']; // <-- Nuevo arreglo para visualización
                     headers.forEach(header => {
                         const td = document.createElement('td');                        
                         // *** CAMBIO AQUÍ: Verifica y formatea la fecha en la tabla ***
@@ -296,13 +297,14 @@
                              const date = new Date(cellValue);
                             
                              // Formatea la fecha a un string local, ej. 25/08/2025
-                                                // Formato de fecha dd-mon-yyyy
-                            const day = date.getDate().toString().padStart(2, '0');
-                            const month = monthNames[date.getMonth()];
-                            const year = date.getFullYear();
-                            cellValue = `${day}-${month}-${year}`;
-                                    
-                             //cellValue = date.toLocaleDateString();
+                            if (!isNaN(date)) {
+                                const day = date.getDate().toString().padStart(2, '0');
+                                const month = spanishMonthNames[date.getMonth()]; // <-- Usamos los meses en español para la visualización
+                                const year = date.getFullYear();
+                                cellValue = `${day}-${month}-${year}`; 
+                            } else {
+                                cellValue = 'Fecha inválida';
+                            }
                         }
                         
                         td.textContent = cellValue;
@@ -467,13 +469,13 @@
             const formData = {};
             sheetHeaders.forEach(header => {
                 const input = addRecordForm.querySelector(`[name="${header}"]`);
-                formData[header] = input ? input.value : '';
+                let value = input ? input.value : '';
 
                 // --- LÓGICA DE FORMATO DE FECHA AGREGADA AQUÍ ---
                 if (header.toLowerCase().includes('fecha') && value) {
                     const date = new Date(value);
                     const day = date.getDate().toString().padStart(2, '0');
-                    const month = monthNames[date.getMonth()];
+                    const month = monthNames[date.getMonth()]; // <-- monthNames ahora tiene meses en inglés
                     const year = date.getFullYear();
                     value = `${day}-${month}-${year}`;
                 }
@@ -563,6 +565,7 @@
     </script>
 </body>
 </html>
+
 
 
 
