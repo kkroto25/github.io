@@ -168,10 +168,17 @@
         
             try {
                 let url = GOOGLE_APPS_SCRIPT_WEB_APP_URL;
-                if (limit) {
-                    url += `?limit=${limit}`;
-                }
                 
+                // Construimos la URL con los parámetros
+                // El parámetro 'hoja' ahora usa la constante del config.js
+                const params = new URLSearchParams();
+                if (limit) {
+                    params.append('limit', limit);
+                }
+                params.append('hoja', HOJA_DETALLE);
+                
+                url += '?' + params.toString();
+            
                 const response = await fetch(url, {
                     method: 'GET',
                     mode: 'cors'
