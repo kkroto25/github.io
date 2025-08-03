@@ -82,16 +82,23 @@
                 headers.forEach(header => {
                     const td = document.createElement('td');
                     let value = item[header];
-            
-                    // --- CAMBIO AQUÍ: Formatear la columna 'monto' ---
-                    if (header.toLowerCase() === 'monto' && !isNaN(Number(value))) {
-                        // Si es la columna 'monto' y es un número válido, lo formateamos
-                        td.textContent = Number(value).toFixed(2);
+                    const isMontoColumn = header.toLowerCase() === 'monto';
+
+                    // --- CAMBIO AQUÍ: Lógica para el valor 'monto' ---
+                    if (isMontoColumn && !isNaN(Number(value))) {
+                        const numericValue = Number(value);
+                        if (numericValue === 0) {
+                            // Si el monto es cero, muestra un guion o déjalo vacío
+                            td.textContent = '-';
+                        } else {
+                            // Si no es cero, lo formatea a 2 decimales
+                            td.textContent = numericValue.toFixed(2);
+                        }
                     } else {
-                        // Si no, usamos el valor original
+                        // Si no es la columna 'monto' o no es un número, usa el valor original
                         td.textContent = value;
                     }
-                    
+
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
