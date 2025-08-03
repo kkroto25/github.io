@@ -11,8 +11,8 @@
 </head>
 <body class="bg-gray-100 p-4 sm:p-6">
     <div class="container">
-        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Datos de Google Sheets</h1>
-        <p class="text-gray-600 mb-6 text-center">Cargando todos los datos al iniciar.</p>
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4 text-center">Gastos Diarios - Detalle</h1>
+        
         
         <div class="input-group">          
             <div class="input-group-right">
@@ -23,17 +23,31 @@
                 </button>            
             </div>            
         </div>
-        <button id="readAllBtn" class="btn-action">
-            <i class="fas fa-list mr-2"></i> Leer todos
-        </button>    
-        
-        <a href="totales.html" class="btn btn-info">
-            <i class="fas fa-chart-pie"></i> Ver Totales
-        </a>
 
-        <button id="addBtn" class="btn-action btn-add">
-            <i class="fas fa-plus mr-2"></i> Agregar
-        </button> 
+
+        <div class="input-group">          
+            <div class="input-group-right">
+                <button id="readAllBtn" class="btn-action">
+                    <i class="fas fa-list mr-2"></i> Leer todos
+                </button>           
+            </div>            
+        </div>
+
+         <div class="input-group">          
+            <div class="input-group-right">
+                <a href="totales.html" class="btn btn-info">
+                    <i class="fas fa-chart-pie"></i> Ver Totales
+                </a>         
+            </div>            
+        </div>       
+  
+         <div class="input-group">          
+            <div class="input-group-right">
+                <button id="addBtn" class="btn-action btn-add">
+                    <i class="fas fa-plus mr-2"></i> Agregar
+                </button>       
+            </div>            
+        </div>         
         
         <div id="statusMessage" class="message-box hidden"></div>
         
@@ -445,6 +459,7 @@
     </script>
 </body>
 </html>
+
 
 
 
