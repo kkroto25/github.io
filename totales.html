@@ -48,6 +48,10 @@
                     const headers = result.data.headers;
                     renderTable(allRecords, headers);
                     statusMessage.classList.add('hidden');
+
+                    statusMessage.classList.remove('loading', 'error');
+                    statusMessage.classList.add('success');
+                    
                 } else {
                     throw new Error(result.message);
                 }
