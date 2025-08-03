@@ -39,7 +39,7 @@
                 statusMessage.textContent = 'Cargando datos...';
                 
                 // La URL ahora incluye el parámetro 'hoja'               
-                const url = `${GOOGLE_APPS_SCRIPT_WEB_APP_URL}?hoja=${encodeURIComponent(sheetName)}`;
+                const url = `${GOOGLE_APPS_SCRIPT_WEB_APP_URL}?hoja=${encodeURIComponent(HOJA_TOTALES)}`; // <-- CÓDIGO CORREGIDO
                 const response = await fetch(url);
                 const result = await response.json();
 
@@ -84,7 +84,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetchData('Totales'); // <-- Carga los datos de la hoja 'Totales' al iniciar
+            // fetchData('Totales'); // <-- CÓDIGO ANTERIOR
+            fetchData(HOJA_TOTALES); // <-- CÓDIGO CORREGIDO
         });
     </script>
 </body>
