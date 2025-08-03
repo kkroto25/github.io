@@ -81,7 +81,17 @@
                 const tr = document.createElement('tr');
                 headers.forEach(header => {
                     const td = document.createElement('td');
-                    td.textContent = item[header];
+                    let value = item[header];
+            
+                    // --- CAMBIO AQUÍ: Formatear la columna 'monto' ---
+                    if (header.toLowerCase() === 'monto' && !isNaN(Number(value))) {
+                        // Si es la columna 'monto' y es un número válido, lo formateamos
+                        td.textContent = Number(value).toFixed(2);
+                    } else {
+                        // Si no, usamos el valor original
+                        td.textContent = value;
+                    }
+                    
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
