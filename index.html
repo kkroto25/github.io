@@ -191,21 +191,30 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    allRecords = result.data;
-                    if (allRecords.length > 0) {
-                        sheetHeaders = Object.keys(allRecords[0]).filter(key => key !== 'fila');
+                    // Verificamos si los datos y los registros existen y no están vacíos
+                    if (result.data && result.data.records && result.data.records.length > 0) {
+                        // CORRECCIÓN: Accedemos al array de registros
+                        allRecords = result.data.records;
+                        
+                        // CORRECCIÓN: Accedemos al array de encabezados
+                        sheetHeaders = result.data.headers;
+                        
                         renderTable(allRecords);
                         statusMessage.classList.remove('loading', 'error');
                         statusMessage.classList.add('success');
+        
                         if (limit) {
                             statusMessage.textContent = `Mostrando los últimos ${allRecords.length} registros.`;
                         } else {
                             statusMessage.textContent = `¡Todos los ${allRecords.length} registros cargados!`;
                         }
                     } else {
+                        // Si la respuesta es exitosa pero sin registros
                         statusMessage.classList.remove('loading', 'success');
                         statusMessage.classList.add('error');
                         statusMessage.textContent = 'No se encontraron registros en la hoja.';
+                        allRecords = [];
+                        renderTable([]);
                     }
                 } else {
                     throw new Error(result.message);
@@ -436,6 +445,7 @@
     </script>
 </body>
 </html>
+
 
 
 
