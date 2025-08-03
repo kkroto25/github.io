@@ -25,6 +25,11 @@
   color: #fff;
 }
 
+#table-container thead th {
+    background-color: #ADD8E6; /* Celeste claro */
+    color: #333;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f7fafc;
